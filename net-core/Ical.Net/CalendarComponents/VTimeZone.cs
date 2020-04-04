@@ -71,11 +71,15 @@ namespace Ical.Net.CalendarComponents
                 var standardIntervals = intervals.Where(x => x.Savings.ToTimeSpan() == new TimeSpan(0)).ToList();
                 var latestStandardInterval = standardIntervals.OrderByDescending(x => x.Start).FirstOrDefault();
                 matchingStandardIntervals = GetMatchingIntervals(standardIntervals, latestStandardInterval, true);
-                var latestStandardTimeZoneInfo = CreateTimeZoneInfo(matchingStandardIntervals, intervals);
+                var hasDaylightIntervals = latestStandardInterval != null &&
+                                           (latestStandardInterval.HasEnd
+                                               ? latestStandardInterval.End
+                                               : Instant.MaxValue) != Instant.MaxValue;
+                var latestStandardTimeZoneInfo = CreateTimeZoneInfo(matchingStandardIntervals, intervals, hasDaylightIntervals, !hasDaylightIntervals);
                 vTimeZone.AddChild(latestStandardTimeZoneInfo);
 
                 // check to see if there is no active, future daylight savings (ie, America/Phoenix)
-                if (latestStandardInterval != null && (latestStandardInterval.HasEnd ? latestStandardInterval.End : Instant.MaxValue) != Instant.MaxValue)
+                if (hasDaylightIntervals)
                 {
                     //daylight
                     var daylightIntervals = intervals.Where(x => x.Savings.ToTimeSpan() != new TimeSpan(0)).ToList();
