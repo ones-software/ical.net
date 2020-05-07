@@ -175,7 +175,9 @@ namespace Ical.Net.CalendarComponents
             {
                 PopulateTimeZoneInfoRecurrenceRules(timeZoneInfo, oldestInterval);
             }
-            else
+            // fixing the case that outlook 2010 cannot process the timezone with RDate
+            // reference https://support.microsoft.com/en-hk/help/4456241/you-receive-a-meeting-request-that-has-not-supported-calendar-message
+            else if (!isOnlyInterval)
             {
                 PopulateTimeZoneInfoRecurrenceDates(timeZoneInfo, matchedIntervals, delta);
             }
@@ -194,7 +196,7 @@ namespace Ical.Net.CalendarComponents
                         && x.WallOffset == intervalToMatch.WallOffset
                         && x.Name == intervalToMatch.Name)
                 .ToList();
-
+             
             if (!consecutiveOnly)
             {
                 return matchedIntervals;
