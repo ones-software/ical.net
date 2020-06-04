@@ -75,7 +75,8 @@ namespace Ical.Net.CalendarComponents
                                            (latestStandardInterval.HasEnd
                                                ? latestStandardInterval.End
                                                : Instant.MaxValue) != Instant.MaxValue;
-                var latestStandardTimeZoneInfo = CreateTimeZoneInfo(matchingStandardIntervals, intervals, hasDaylightIntervals, !hasDaylightIntervals);
+                var latestStandardTimeZoneInfo = CreateTimeZoneInfo(matchingStandardIntervals, intervals,
+                    hasDaylightIntervals, !hasDaylightIntervals, false);
                 vTimeZone.AddChild(latestStandardTimeZoneInfo);
 
                 // check to see if there is no active, future daylight savings (ie, America/Phoenix)
@@ -87,10 +88,19 @@ namespace Ical.Net.CalendarComponents
                     if (daylightIntervals.Any())
                     {
                         var latestDaylightInterval = daylightIntervals.OrderByDescending(x => x.Start).FirstOrDefault();
-                        matchingDaylightIntervals = GetMatchingIntervals(daylightIntervals, latestDaylightInterval, true);
-                        var latestDaylightTimeZoneInfo = CreateTimeZoneInfo(matchingDaylightIntervals, intervals);
+                        matchingDaylightIntervals =
+                            GetMatchingIntervals(daylightIntervals, latestDaylightInterval, true);
+                        var latestDaylightTimeZoneInfo =
+                            CreateTimeZoneInfo(matchingDaylightIntervals, intervals, isDaylight: true);
                         vTimeZone.AddChild(latestDaylightTimeZoneInfo);
                     }
+                }
+                else // for none daylight area, making standard as daylight
+                {
+                    var daylightIntervals =
+                        CreateTimeZoneInfo(matchingStandardIntervals, intervals, false, true, true);
+                    vTimeZone.AddChild(daylightIntervals);
+
                 }
             }
 
@@ -121,7 +131,7 @@ namespace Ical.Net.CalendarComponents
         }
 
         private static VTimeZoneInfo CreateTimeZoneInfo(List<ZoneInterval> matchedIntervals, List<ZoneInterval> intervals, bool isRRule = true,
-            bool isOnlyInterval = false)
+            bool isOnlyInterval = false, bool isDaylight = false)
         {
             if (matchedIntervals == null || !matchedIntervals.Any())
             {
@@ -151,7 +161,6 @@ namespace Ical.Net.CalendarComponents
 
             var timeZoneInfo = new VTimeZoneInfo();
 
-            var isDaylight = oldestInterval.Savings.Ticks > 0;
 
             if (isDaylight)
             {
