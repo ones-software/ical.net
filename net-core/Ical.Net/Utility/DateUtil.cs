@@ -25,14 +25,17 @@ namespace Ical.Net.Utility
             {
                 return dt.Value;
             }
+
             if (toMatch.IsUtc)
             {
                 return dt.Value.ToUniversalTime();
             }
+
             if (dt.IsUtc)
             {
                 return dt.Value.ToLocalTime();
             }
+
             return dt.Value;
         }
 
@@ -78,6 +81,7 @@ namespace Ical.Net.Utility
                 dt = dt.AddDays(-1);
                 offset++;
             }
+
             return dt;
         }
 
@@ -142,9 +146,9 @@ namespace Ical.Net.Utility
             }
 
             if (_windowsMapping.Value.Keys
-                    .Where(tzId.Contains)
-                    .Any(providerId => _windowsMapping.Value.TryGetValue(providerId, out ianaZone))
-               )
+                .Where(tzId.Contains)
+                .Any(providerId => _windowsMapping.Value.TryGetValue(providerId, out ianaZone))
+            )
             {
                 return DateTimeZoneProviders.Tzdb.GetZoneOrNull(ianaZone);
             }
@@ -165,7 +169,8 @@ namespace Ical.Net.Utility
         public static ZonedDateTime AddYears(ZonedDateTime zonedDateTime, int years)
         {
             var futureDate = zonedDateTime.Date.PlusYears(years);
-            var futureLocalDateTime = new LocalDateTime(futureDate.Year, futureDate.Month, futureDate.Day, zonedDateTime.Hour, zonedDateTime.Minute,
+            var futureLocalDateTime = new LocalDateTime(futureDate.Year, futureDate.Month, futureDate.Day,
+                zonedDateTime.Hour, zonedDateTime.Minute,
                 zonedDateTime.Second);
             var zonedFutureDate = new ZonedDateTime(futureLocalDateTime, zonedDateTime.Zone, zonedDateTime.Offset);
             return zonedFutureDate;
@@ -174,7 +179,8 @@ namespace Ical.Net.Utility
         public static ZonedDateTime AddMonths(ZonedDateTime zonedDateTime, int months)
         {
             var futureDate = zonedDateTime.Date.PlusMonths(months);
-            var futureLocalDateTime = new LocalDateTime(futureDate.Year, futureDate.Month, futureDate.Day, zonedDateTime.Hour, zonedDateTime.Minute,
+            var futureLocalDateTime = new LocalDateTime(futureDate.Year, futureDate.Month, futureDate.Day,
+                zonedDateTime.Hour, zonedDateTime.Minute,
                 zonedDateTime.Second);
             var zonedFutureDate = new ZonedDateTime(futureLocalDateTime, zonedDateTime.Zone, zonedDateTime.Offset);
             return zonedFutureDate;
@@ -191,14 +197,16 @@ namespace Ical.Net.Utility
         public static ZonedDateTime FromTimeZoneToTimeZone(DateTime dateTime, string fromZoneId, string toZoneId)
             => FromTimeZoneToTimeZone(dateTime, GetZone(fromZoneId), GetZone(toZoneId));
 
-        public static ZonedDateTime FromTimeZoneToTimeZone(DateTime dateTime, DateTimeZone fromZone, DateTimeZone toZone)
+        public static ZonedDateTime FromTimeZoneToTimeZone(DateTime dateTime, DateTimeZone fromZone,
+            DateTimeZone toZone)
         {
             var oldZone = LocalDateTime.FromDateTime(dateTime).InZoneLeniently(fromZone);
             var newZone = oldZone.WithZone(toZone);
             return newZone;
         }
 
-        public static bool IsSerializationTimeZone(DateTimeZone zone) => DateTimeZoneProviders.Serialization.GetZoneOrNull(zone.Id) != null;
+        public static bool IsSerializationTimeZone(DateTimeZone zone) =>
+            DateTimeZoneProviders.Serialization.GetZoneOrNull(zone.Id) != null;
 
         /// <summary>
         /// Truncate to the specified TimeSpan's magnitude. For example, to truncate to the nearest second, use TimeSpan.FromSeconds(1)

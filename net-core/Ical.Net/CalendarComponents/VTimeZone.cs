@@ -175,7 +175,7 @@ namespace Ical.Net.CalendarComponents
                 timeZoneInfo.OffsetTo = new UtcOffset(utcOffset);
             }
 
-            timeZoneInfo.TimeZoneName = oldestInterval.Name;
+            // timeZoneInfo.TimeZoneName = oldestInterval.Name;
 
             var start = oldestInterval.IsoLocalStart.ToDateTimeUnspecified() + delta;
             timeZoneInfo.Start = new CalDateTime(start) { HasTime = true };
